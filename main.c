@@ -5,14 +5,12 @@
 
 int main(void)
 {
-    inputHandlerInit();
     controllerInit();
+    inputHandlerInit();
     // Program loop
     while (true)
     {
         sendCommand(getInput());
-        usleep(100000); // 100 ms delay
     }
-    inputHandlerExit();
     return 0;
 }
