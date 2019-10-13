@@ -1,14 +1,18 @@
 #include "controller.hpp"
 
+int controller::currentThrottle = 0;
+int controller::commandArray[3] = {0, 0, 0};
+
 void controller::createCommand(int throttleUp, int throttleDown, int toggleswitch)
 {
-    if (toggleswitch == 1)
+    if (toggleswitch == 0)
     {
         setCommandArray(0, 0, 0);
-        exit(1);
+        return;
     }
     // Update throttle value
     currentThrottle = currentThrottle + throttleUp - throttleDown;
+    printf("%d\n", currentThrottle);
     setThrottle();
 }
 
@@ -27,6 +31,7 @@ void controller::setThrottle(void)
     }
     // Return MSD from currentThrottle and set throttle accordingly
     int currentThrottle_ = (int) ((float) currentThrottle/(maxThrottle/10));
+    printf("%d\n", currentThrottle_);
     switch (currentThrottle_)
     {
         case 0 : {

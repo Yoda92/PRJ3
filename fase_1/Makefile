@@ -10,7 +10,7 @@ all: $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(PROG)
 
 %.o: %.cpp
-	$(CXX) -cpp $<
+	$(CXX) -c $<
 
 clean:
 	rm $(OBJECTS) $(PROG)

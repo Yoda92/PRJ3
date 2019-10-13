@@ -14,8 +14,8 @@ class controller {
     static void setCommandArray(int, int, int);
     static void setThrottle(void);
     static int currentThrottle;
-    static int maxThrottle = 10000000;
-    static int minThrottle = 0;
+    static const int maxThrottle = 1000;
+    static const int minThrottle = 0;
 };
 
 // Protokol:

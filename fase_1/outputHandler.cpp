@@ -1,5 +1,9 @@
 #include "outputHandler.hpp"
 
+char outputHandler::buffer_output_0[30] = {0};
+char outputHandler::buffer_output_1[30] = {0};
+char outputHandler::buffer_output_2[30] = {0};
+
 void outputHandler::init(void)
 {
     // Set device address variables
