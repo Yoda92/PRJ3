@@ -24,6 +24,9 @@ struct Myspi spi_devs[4];
 const int spi_devs_len = 4;  // Max nbr of devices
 static int spi_devs_cnt = 0; // Nbr devices present
 
+// Command byte - Defaults to channel 0
+u8 command_byte = 0b00011010;
+
 /* Macro to handle Errors */
 #define ERRGOTO(label, ...)                     \
   {                                             \
@@ -119,8 +122,7 @@ int my_spi_read_byte(struct spi_device *spi, u8 *data1, u8 *data2)
   memset(t,0,sizeof(t)); /* InitMemory */
   spi_message_init(&m);    /* InitMsg*/
   m.spi=spi;             /* Use current SPI I/F */
-  u8 cmd1 = 0b00011010;
-  t[0].tx_buf=&cmd1;
+  t[0].tx_buf=&command_byte;
   t[0].rx_buf=NULL;
   t[0].len =1;
   spi_message_add_tail(&t[0],&m);
@@ -168,6 +170,14 @@ ssize_t spi_drv_write(struct file *filep, const char __user *ubuf,
   /*
     Do something with value ....
   */
+  if (value == 0)
+  {
+    command_byte = 0b00011010;
+  }
+  else if (value == 1)
+  {
+    command_byte = 0b00011110;
+  }
   my_spi_write_byte(spi_devs[0].spi, value);
   /* Legacy file ptr f_pos. Used to support
    * random access but in char drv we dont!
