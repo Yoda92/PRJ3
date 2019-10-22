@@ -10,7 +10,7 @@ int main(void)
     while (true)
     {
         inputHandler::updateInput();
-        // printf("Input: %d, %d, %d, %d, %d\n", inputHandler::throttleUp, inputHandler::throttleDown, inputHandler::toggleswitch, inputHandler::adc0, inputHandler::adc1);
+        printf("Input: %d, %d, %d, %d, %d\n", inputHandler::throttleUp, inputHandler::throttleDown, inputHandler::toggleswitch, inputHandler::adc0, inputHandler::adc1);
         controller::createCommand(
             inputHandler::throttleUp, 
             inputHandler::throttleDown, 
@@ -18,7 +18,7 @@ int main(void)
             inputHandler::adc0,
             inputHandler::adc1
             );
-        // printf("Output: %d, %d, %d\n", controller::commandArray[0], controller::commandArray[1], controller::commandArray[2]);
+        printf("Output: %d, %d, %d\n", controller::commandArray[0], controller::commandArray[1], controller::commandArray[2]);
         outputHandler::sendOutput(controller::commandArray);
     }
     return 0;

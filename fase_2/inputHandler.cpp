@@ -9,7 +9,6 @@ int inputHandler::adc1 = 0;
 char inputHandler::buffer_throttle_up[PATH_LENGTH_GPIO] = {0};
 char inputHandler::buffer_throttle_down[PATH_LENGTH_GPIO] = {0};
 char inputHandler::buffer_switch[PATH_LENGTH_GPIO] = {0};
-char inputHandler::buffer_adc[PATH_LENGTH_ADC] = {0};
 
 void inputHandler::init(void)
 {
@@ -17,7 +16,7 @@ void inputHandler::init(void)
     snprintf(buffer_throttle_up, PATH_LENGTH_GPIO, "/sys/class/gpio/gpio%d/value", GPIO_THROTTLE_UP);
     snprintf(buffer_throttle_down, PATH_LENGTH_GPIO, "/sys/class/gpio/gpio%d/value", GPIO_THROTTLE_DOWN);
     snprintf(buffer_switch, PATH_LENGTH_GPIO, "/sys/class/gpio/gpio%d/value", GPIO_SWITCH);
-    snprintf(buffer_adc, PATH_LENGTH_ADC, "/dev/spi_drv0");
+    mcp3202Handler::init();
 }
 
 void inputHandler::updateInput(void)
@@ -27,10 +26,8 @@ void inputHandler::updateInput(void)
     readValue(buffer_throttle_down, 2, throttleDown);
     readValue(buffer_switch, 2, toggleswitch);
     // Read both ADC channels
-    writeValue(buffer_adc, "0");
-    readValue(buffer_adc, 5, adc0); 
-    writeValue(buffer_adc, "1");
-    readValue(buffer_adc, 5, adc1); 
+    adc0 = mcp3202Handler::getValue(0);
+    adc1 = mcp3202Handler::getValue(1);
 }
 
 void inputHandler::readValue(char *buffer, int size, int &input)
