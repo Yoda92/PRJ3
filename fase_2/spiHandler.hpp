@@ -8,7 +8,7 @@
 class spiHandler {
   public: 
     static void init(void);
-    static void transmit(uint8_t*, uint8_t*);
+    static void transmit(uint8_t*, uint8_t*, uint8_t = 1);
   private:
     static int spi_dev_fd;
     static char bits;
