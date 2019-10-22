@@ -8,13 +8,13 @@
 
 class controller {
   public: 
-    static void createCommand(int, int, int);
+    static void createCommand(int&, int&, int&, int&, int&);
     static int commandArray[3];
   private:
     static void setCommandArray(int, int, int);
     static void setThrottle(void);
     static int currentThrottle;
-    static const int maxThrottle = 1000;
+    static const int maxThrottle = 100;
     static const int minThrottle = 0;
 };
 

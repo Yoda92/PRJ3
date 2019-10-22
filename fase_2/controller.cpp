@@ -3,11 +3,12 @@
 int controller::currentThrottle = 0;
 int controller::commandArray[3] = {0, 0, 0};
 
-void controller::createCommand(int throttleUp, int throttleDown, int toggleswitch)
+void controller::createCommand(int &throttleUp, int &throttleDown, int &toggleswitch, int &adc0, int &adc1)
 {
     if (toggleswitch == 0)
     {
         setCommandArray(0, 0, 0);
+        currentThrottle = 0;
         return;
     }
     // Update throttle value
@@ -24,7 +25,7 @@ void controller::setThrottle(void)
         currentThrottle = maxThrottle;
         setCommandArray(1, 0, 1);
     }
-    else if (currentThrottle < minThrottle)
+    if (currentThrottle < minThrottle)
     {
         currentThrottle = minThrottle;
         setCommandArray(0, 0, 0);       
