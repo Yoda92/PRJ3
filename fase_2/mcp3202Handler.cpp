@@ -6,7 +6,7 @@ uint8_t mcp3202Handler::commandByte1 = 0b00011110;
 void mcp3202Handler::init(void)
 {
     // Setup SPI-communication
-    spiHandler::init(spiHandler::spi_dev_fd_0, "/dev/spidev0.0");
+    spiHandler::init(spi_dev_fd_0, "/dev/spidev0.0");
 }
 
 uint16_t mcp3202Handler::getValue(int channel)
@@ -18,11 +18,11 @@ uint16_t mcp3202Handler::getValue(int channel)
     tempByte1 = commandByte1;
     if (channel == 0)
     {
-        spiHandler::transmit(&tempByte0, NULL);
+        transmit(spi_dev_fd_0, &tempByte0, NULL);
     }
     else if (channel == 1)
     {
-        spiHandler::transmit(&tempByte1, NULL);
+        transmit(spi_dev_fd_0, &tempByte1, NULL);
     }
     else
     {
@@ -32,10 +32,10 @@ uint16_t mcp3202Handler::getValue(int channel)
     // Reset and Receive bytes
     tempByte0 = 0;
     tempByte1 = 0;
-    spiHandler::transmit(NULL, &tempByte0);
-    spiHandler::transmit(NULL, &tempByte1);
+    transmit(spi_dev_fd_0, NULL, &tempByte0);
+    transmit(spi_dev_fd_0, NULL, &tempByte1);
     // Reset CS
-    spiHandler::transmit(NULL, NULL, 0);
+    spiHandler::transmit(spi_dev_fd_0, NULL, NULL, 0);
     // Combine bytes to actual value
     uint16_t value = combineBytes(tempByte0, tempByte1);
     return value;

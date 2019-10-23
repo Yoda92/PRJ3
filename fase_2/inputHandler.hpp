@@ -1,3 +1,5 @@
+#pragma once
+
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -5,6 +7,8 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include "mcp3202Handler.hpp"
 
 class inputHandler : public mcp3202Handler {       
   public:

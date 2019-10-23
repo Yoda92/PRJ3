@@ -6,7 +6,7 @@ char spiHandler::bits = 8;
 unsigned int spiHandler::speed = 1000000;
 unsigned char spiHandler::mode = SPI_MODE_0;
 
-void spiHandler::init(int spi_dev, char* address)
+void spiHandler::init(int &spi_dev, const char* address)
 {
     // Open SPI device in READ-WRITE mode
     spi_dev = open(address,O_RDWR);
@@ -63,10 +63,10 @@ void spiHandler::init(int spi_dev, char* address)
     printf("Device configuration success.\n");
 }
 
-void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer, int cs)
+void spiHandler::transmit(int &spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t cs)
 {
     // local file descriptor
-    int local_fd = spi_dev_fd;
+    int local_fd = spi_dev;
     // Set rx and tx buffer
     // Buffer length set to 1 byte
     struct spi_ioc_transfer spi_transfer=
@@ -78,7 +78,7 @@ void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer, i
     };
 
     // Transmission
-    if (ioctl(spi_dev, SPI_IOC_MESSAGE(1), &spi_transfer) < 0)
+    if (ioctl(local_fd, SPI_IOC_MESSAGE(1), &spi_transfer) < 0)
     {
         printf("Transmission was not succesfull.\n");
         return;

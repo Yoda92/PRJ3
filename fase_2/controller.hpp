@@ -1,3 +1,5 @@
+#pragma once
+
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -5,6 +7,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 class controller {
   public: 
@@ -16,7 +19,7 @@ class controller {
     static int currentThrottle;
     static const int maxThrottle = 1000;
     static const int upperThreshold = 3072;
-    static const int lowerThreshold = 1024
+    static const int lowerThreshold = 1024;
 };
 
 // Protokol:

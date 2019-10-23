@@ -5,7 +5,6 @@
 int main(void)
 {
     inputHandler::init();
-    printf("%d\n", mcp3202Handler::getValue(0));
     outputHandler::init();
     // Program loop
     while (true)
@@ -13,14 +12,14 @@ int main(void)
         inputHandler::updateInput();
         // printf("Input: %d, %d, %d, %d, %d\n", inputHandler::throttleUp, inputHandler::throttleDown, inputHandler::toggleswitch, inputHandler::adc0, inputHandler::adc1);
         controller::createCommand(
-            inputHandler::&throttleUp, 
-            inputHandler::&throttleDown, 
-            inputHandler::&toggleswitch,
-            inputHandler::&adc0,
-            inputHandler::&adc1
+            inputHandler::throttleUp, 
+            inputHandler::throttleDown, 
+            inputHandler::toggleswitch,
+            inputHandler::adc0,
+            inputHandler::adc1
             );
-        // printf("Output: %d, %d, %d\n", controller::commandArray[0], controller::commandArray[1], controller::commandArray[2]);
-        outputHandler::sendOutput(controller::&commandByte);
+        // printf("Output: %d\n", controller::commandByte);
+        outputHandler::sendOutput(controller::commandByte);
     }
     return 0;
 }

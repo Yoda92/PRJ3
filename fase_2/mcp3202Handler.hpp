@@ -1,4 +1,7 @@
+#pragma once
+
 // Child class of spiHandler
+#include "spiHandler.hpp"
 
 class mcp3202Handler : public spiHandler {
   public: 
