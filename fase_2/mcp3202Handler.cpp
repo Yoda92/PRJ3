@@ -6,7 +6,7 @@ uint8_t mcp3202Handler::commandByte1 = 0b00011110;
 void mcp3202Handler::init(void)
 {
     // Setup SPI-communication
-    spiHandler::init();
+    spiHandler::init(spiHandler::spi_dev_fd_0, "/dev/spidev0.0");
 }
 
 uint16_t mcp3202Handler::getValue(int channel)

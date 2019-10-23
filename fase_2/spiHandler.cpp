@@ -1,58 +1,59 @@
 #include "spiHandler.hpp"
 // File descriptor
-int spiHandler::spi_dev_fd;
+int spiHandler::spi_dev_fd_0;
+int spiHandler::spi_dev_fd_1;
 char spiHandler::bits = 8;
 unsigned int spiHandler::speed = 1000000;
 unsigned char spiHandler::mode = SPI_MODE_0;
 
-void spiHandler::init(void)
+void spiHandler::init(int spi_dev, char* address)
 {
     // Open SPI device in READ-WRITE mode
-    spi_dev_fd = open("/dev/spidev0.0",O_RDWR);
+    spi_dev = open(address,O_RDWR);
     // Error handling
-    if (spi_dev_fd < 0)
+    if (spi_dev < 0)
     {
         printf("Error opening device.\n");
         return;
     }
 
     // Configure write to mode 0
-    if (ioctl(spi_dev_fd, SPI_IOC_WR_MODE, &mode) < 0)
+    if (ioctl(spi_dev, SPI_IOC_WR_MODE, &mode) < 0)
     {
         printf("Error configuring write to mode0.\n");
         return;
     }
 
     // Configure read to mode 0
-    if (ioctl(spi_dev_fd, SPI_IOC_RD_MODE, &mode) < 0)
+    if (ioctl(spi_dev, SPI_IOC_RD_MODE, &mode) < 0)
     {
         printf("Error configuring read to mode0.\n");
         return;
     }
 
     // Configure write bits to 8
-    if (ioctl(spi_dev_fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
+    if (ioctl(spi_dev, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
     {
         printf("Error configuring write bits to 8.\n");
         return;
     }
 
     // Configure read bits to 8
-    if (ioctl(spi_dev_fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
+    if (ioctl(spi_dev, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
     {
         printf("Error configuring read bits to 8.\n");
         return;
     }   
 
     // Configure write speed to 1 MHz
-    if (ioctl(spi_dev_fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0)
+    if (ioctl(spi_dev, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0)
     {
         printf("Error configuring write max speed to 1 MHz.\n");
         return;
     }
 
     // Configure read speed to 1 MHz
-    if (ioctl(spi_dev_fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed) < 0)
+    if (ioctl(spi_dev, SPI_IOC_RD_MAX_SPEED_HZ, &speed) < 0)
     {
         printf("Error configuring read max speed to 1 MHz.\n");
         return;
@@ -62,7 +63,7 @@ void spiHandler::init(void)
     printf("Device configuration success.\n");
 }
 
-void spiHandler::transmit(uint8_t* tx_buffer, uint8_t* rx_buffer)
+void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer)
 {
     // Set rx and tx buffer
     // Buffer length set to 1 byte
@@ -75,7 +76,7 @@ void spiHandler::transmit(uint8_t* tx_buffer, uint8_t* rx_buffer)
     };
 
     // Transmission
-    if (ioctl(spi_dev_fd, SPI_IOC_MESSAGE(1), &spi_transfer) < 0)
+    if (ioctl(spi_dev, SPI_IOC_MESSAGE(1), &spi_transfer) < 0)
     {
         printf("Transmission was not succesfull.\n");
         return;

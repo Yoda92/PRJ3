@@ -1,71 +1,69 @@
 #include "controller.hpp"
 
 int controller::currentThrottle = 0;
-int controller::commandArray[3] = {0, 0, 0};
+uint8_t controller::commandByte;
 
 void controller::createCommand(int &throttleUp, int &throttleDown, int &toggleswitch, int &adc0, int &adc1)
 {
+    commandByte = 0b00000000;
     if (toggleswitch == 0)
     {
-        setCommandArray(0, 0, 0);
         currentThrottle = 0;
         return;
     }
-    // Update throttle value
+    // Update throttle value and set acutal throttle
     currentThrottle = currentThrottle + throttleUp - throttleDown;
-    printf("%d\n", currentThrottle);
     setThrottle();
+    // Update direction given adc state
+    setDirection(adc0, adc1);
 }
 
 void controller::setThrottle(void)
 {
     // Throttle edgecases
-    if (currentThrottle > maxThrottle)
+    if (currentThrottle >= maxThrottle)
     {
         currentThrottle = maxThrottle;
-        setCommandArray(1, 0, 1);
+        commandByte &= (0b11111010);  
+        return;
     }
-    if (currentThrottle < minThrottle)
+    if (currentThrottle <= minThrottle)
     {
-        currentThrottle = minThrottle;
-        setCommandArray(0, 0, 0);       
+        currentThrottle = 0;
+        return;
     }
     // Return MSD from currentThrottle and set throttle accordingly
-    int currentThrottle_ = (int) ((float) currentThrottle/(maxThrottle/10));
-    printf("%d\n", currentThrottle_);
-    switch (currentThrottle_)
-    {
-        case 0 : {
-            setCommandArray(0,0,0);
-            break;
-        }
-        case 1 ... 2 : {
-            setCommandArray(0,0,1);
-            break;
-        }
-        case 3 ... 4 : {
-            setCommandArray(0,1,0);
-            break;
-        }
-        case 5 ... 6 : {
-            setCommandArray(0,1,1);
-            break;
-        }
-        case 7 ... 8 : {
-            setCommandArray(1,0,0);
-            break;
-        }
-        case 9 ... 10 : {
-            setCommandArray(1,0,1);
-            break;
-        }
-    }
+    uint8_t currentThrottle_ = (int) ((float) currentThrottle/(maxThrottle/10));
+    // currentThrottle_ is whole number between 0 and 10
+    commandByte &= currentThrottle_;
 }
 
-void controller::setCommandArray(int command_0, int command_1, int command_2)
+void controller::setDirection(int &adc0, int &adc1)
 {
-    commandArray[0] = command_0;
-    commandArray[1] = command_1;
-    commandArray[2] = command_2;
+    // adc0 --> left/right
+    // adc1 --> up/down
+
+    // Reset directions
+    commandByte &= (0b00001111);  
+
+    // Check for left/right position
+    if (adc0 > upperThreshold)
+    {
+        commandByte &= (0b10001111);  
+    }
+    else if(adc0 < lowerThreshold)
+    {
+        commandByte &= (0b01001111); 
+    }
+
+    // Check for up/down position
+    if (adc1 > upperThreshold)
+    {
+        commandByte &= (0b00101111);  
+    }
+    else if(adc1 < lowerThreshold)
+    {
+        commandByte &= (0b00011111); 
+    }
 }
 

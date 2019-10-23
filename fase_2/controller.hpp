@@ -9,21 +9,21 @@
 class controller {
   public: 
     static void createCommand(int&, int&, int&, int&, int&);
-    static int commandArray[3];
+    static uint8_t commandByte;
   private:
-    static void setCommandArray(int, int, int);
     static void setThrottle(void);
+    static void setDirection(int&, int&);
     static int currentThrottle;
-    static const int maxThrottle = 100;
-    static const int minThrottle = 0;
+    static const int maxThrottle = 1000;
+    static const int upperThreshold = 3072;
+    static const int lowerThreshold = 1024
 };
 
 // Protokol:
-// 000 : 0% 
-// 001 : 20% 
-// 010 : 40%
-// 011 : 60%
-// 100 : 80%
-// 101 : 100%
-// 110 : Unused
-// 111 : Unused
+// 0000 : 0% 
+// 0001 : 10% 
+// 0010 : 20%
+// .. 
+// 1010 : 100%
+
+// 

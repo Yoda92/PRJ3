@@ -1,6 +1,6 @@
-#include "spiHandler.hpp"
+// Child class of spiHandler
 
-class mcp3202Handler {
+class mcp3202Handler : public spiHandler {
   public: 
     static void init(void);
     static uint16_t getValue(int channel);

@@ -5,9 +5,8 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
-#include "mcp3202Handler.hpp"
 
-class inputHandler {       
+class inputHandler : public mcp3202Handler {       
   public:
     static void init(void);   
     static void updateInput(void);
