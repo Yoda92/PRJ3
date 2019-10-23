@@ -63,8 +63,10 @@ void spiHandler::init(int spi_dev, char* address)
     printf("Device configuration success.\n");
 }
 
-void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer)
+void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer, int cs)
 {
+    // local file descriptor
+    int local_fd = spi_dev_fd;
     // Set rx and tx buffer
     // Buffer length set to 1 byte
     struct spi_ioc_transfer spi_transfer=
@@ -72,7 +74,7 @@ void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer)
         .tx_buf = (unsigned long) tx_buffer,
         .rx_buf = (unsigned long) rx_buffer,
         .len = 1,				
-        .cs_change = 1,		
+        .cs_change = cs,		
     };
 
     // Transmission
@@ -83,5 +85,5 @@ void spiHandler::transmit(int spi_dev, uint8_t* tx_buffer, uint8_t* rx_buffer)
     }
 
     // Transmission succes
-    printf("Transmission complete.\n");
+    // printf("Transmission complete.\n");
 }

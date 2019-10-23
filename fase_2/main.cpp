@@ -5,6 +5,7 @@
 int main(void)
 {
     inputHandler::init();
+    printf("%d\n", mcp3202Handler::getValue(0));
     outputHandler::init();
     // Program loop
     while (true)
