@@ -3,6 +3,7 @@
 int main(void)
 {
     client::init();
-    client::sendMessage();
+    uint8_t byte = 0b10000000;
+    client::sendMessage(byte);
     return 0;
 }

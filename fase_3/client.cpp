@@ -4,7 +4,7 @@
 
 int client::socketfd;
 struct sockaddr_in client::serveraddr;
-char client::buffer[100] = "Hello!";
+char client::buffer[100];
 
 void client::init(void)
 {
@@ -40,11 +40,11 @@ void client::init(void)
 		printf("Connection established.\n"); 
 }
 
-void client::sendMessage(void)
+void client::sendMessage(uint8_t byte)
 {
     // memset(a, b, c) copies char b to the c first charachters in a
     // Ensures server address is empty  
-    // memset(&buffer, 0, sizeof(buffer)); 
-    printf("%s\n", buffer);
+    memset(&buffer, 0, sizeof(buffer));
+    snprintf(buffer, sizeof(buffer), "%d", byte);
     write(socketfd, buffer, sizeof(buffer)); 
 }

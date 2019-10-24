@@ -5,13 +5,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
+#include <stdint.h>
 
 #define PORT 8080
 
 class client {
   public: 
     static void init(void);
-    static void sendMessage();
+    static void sendMessage(uint8_t);
     static char buffer[100];
   private:
     static int socketfd;
