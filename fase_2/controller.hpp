@@ -1,5 +1,3 @@
-#pragma once
-
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -21,12 +19,3 @@ class controller {
     static const int upperThreshold = 3072;
     static const int lowerThreshold = 1024;
 };
-
-// Protokol:
-// 0000 : 0% 
-// 0001 : 10% 
-// 0010 : 20%
-// .. 
-// 1010 : 100%
-
-// 

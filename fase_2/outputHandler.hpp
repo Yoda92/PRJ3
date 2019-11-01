@@ -1,5 +1,3 @@
-#pragma once
-
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -7,12 +5,15 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
-#include "spiHandler.hpp"
+#include <stdint.h>
 
-class outputHandler : public spiHandler {
+class outputHandler {
   public: 
-    static void sendOutput(uint8_t&);
+    static void sendOutput(uint8_t);
     static void init(void);
+    static int adc;
   private:
-
+    static void writeValue(char *, char *);
+    static const int PATH_LENGTH_ADC = 15;
+    static char buffer_adc[PATH_LENGTH_ADC];
 };

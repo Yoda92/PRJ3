@@ -1,10 +1,10 @@
 CXX=arm-rpizw-g++
 PROG=main
-SOURCES=main.cpp inputHandler.cpp outputHandler.cpp controller.cpp mcp3202Handler.cpp spiHandler.cpp
+SOURCES=main.cpp inputHandler.cpp outputHandler.cpp controller.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 $(PROG): $(OBJECTS)
-	$(CXX) $(OBJECTS) inputHandler.hpp outputHandler.hpp controller.hpp mcp3202Handler.hpp spiHandler.hpp -o $@
+	$(CXX) $(OBJECTS) inputHandler.hpp outputHandler.hpp controller.hpp -o $@
 
 all: $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(PROG)
