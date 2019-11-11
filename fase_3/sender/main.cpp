@@ -1,11 +1,11 @@
 #include "controller.hpp"
 #include "inputHandler.hpp"
-#include "outputHandler.hpp"
+#include "client.hpp"
 
 int main(void)
 {
     inputHandler::init();
-    outputHandler::init();
+    client::init();
     // Program loop
     while (true)
     {
@@ -20,9 +20,7 @@ int main(void)
             inputHandler::adc1
             );
         printf("Output: %d\n", controller::commandByte);
-        outputHandler::sendOutput(controller::commandByte);
-        printf("%d", x);
-        x++;
+        client::sendMessage(controller::commandByte);
     }
     return 0;
 }
