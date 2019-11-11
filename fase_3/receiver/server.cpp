@@ -60,7 +60,7 @@ void server::receiveMessage(void)
 {
     // memset(a, b, c) copies char b to the c first charachters in a
     // Ensures buffer is empty
-    // memset(&buffer, 0, sizeof(buffer));
+    // memset(buffer, 0, sizeof(buffer));
 
     // Read message from client
     read(conf, buffer, sizeof(buffer)); 
