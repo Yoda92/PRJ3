@@ -5,6 +5,7 @@
 int client::socketfd;
 struct sockaddr_in client::serveraddr;
 char client::buffer[100];
+bool conn = false;
 
 void client::init(void)
 {
@@ -32,12 +33,18 @@ void client::init(void)
 	serveraddr.sin_port = htons(PORT); 
 
     // Connect client socket to server socket
-	if (connect(socketfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) != 0) { 
-		printf("Connection failed.\n"); 
-		return;
-	} 
-	else
-		printf("Connection established.\n"); 
+    while(conn == false)
+    {
+	    if (connect(socketfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) != 0) 
+        { 
+		    printf("Connection failed.\n"); 
+	    }    
+	    else 
+        {
+		    printf("Connection established.\n"); 
+            conn = true;
+        }
+    }
 }
 
 void client::sendMessage(uint8_t byte)
@@ -46,5 +53,6 @@ void client::sendMessage(uint8_t byte)
     // Ensures server address is empty  
     memset(&buffer, 0, sizeof(buffer));
     snprintf(buffer, sizeof(buffer), "%d", byte);
-    write(socketfd, buffer, sizeof(buffer)); 
+    write(socketfd, buffer, sizeof(buffer));
+    memset(&buffer, 0, sizeof(buffer));
 }
