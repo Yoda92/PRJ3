@@ -22,18 +22,18 @@ MODULE_DESCRIPTION("GPIO LCD driver");
 
 //LCD 1602a
 
-//original variables
-static const unsigned int LCD_RS = 25;
-static const unsigned int LCD_RW = 22;
-static const unsigned int LCD_E = 22;
-static const unsigned int LCD_D7 = 23;
-static const unsigned int LCD_D6 = 24;
-static const unsigned int LCD_D5 = 27;
-static const unsigned int LCD_D4 = 17;
-static const unsigned int LCD_D3 = 17;
-static const unsigned int LCD_D2 = 17;
-static const unsigned int LCD_D1 = 17;
-static const unsigned int LCD_D0 = 17;
+//gpio pin assignments
+static const unsigned int LCD_RS = 13;
+static const unsigned int LCD_RW = 16;
+static const unsigned int LCD_E = 19;
+static const unsigned int LCD_D7 = 27;
+static const unsigned int LCD_D6 = 26;
+static const unsigned int LCD_D5 = 25;
+static const unsigned int LCD_D4 = 24;
+static const unsigned int LCD_D3 = 23;
+static const unsigned int LCD_D2 = 22;
+static const unsigned int LCD_D1 = 21;
+static const unsigned int LCD_D0 = 20;
 static int devno;
     //static int devno[11] = {0};
 static struct cdev GPIO_cdev;
