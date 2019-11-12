@@ -39,7 +39,7 @@ static int devno;
 static struct cdev GPIO_cdev;
 struct class *LCD_class;
 struct device *LCD_device;
-static struct gpio_dev LCD_devs[255];
+
 int LCD_devs_cnt = 0;
 static int devno; 
 
@@ -68,6 +68,8 @@ struct gpio_dev {
   int no;   // GPIO number
   int flag; // 0: in, 1: out
 };
+
+static struct gpio_dev LCD_devs[255];
 
 static struct platform_driver my_gpio_platform_driver ={
     .probe = GPIO_probe,
