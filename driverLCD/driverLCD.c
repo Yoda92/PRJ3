@@ -36,22 +36,21 @@ static const unsigned int LCD_D1 = 21;
 static const unsigned int LCD_D0 = 20;
 static int devno;
     //static int devno[11] = {0};
-static struct cdev GPIO_cdev;
+static struct cdev GPIO_cdev[2];
 struct class *LCD_class;
 struct device *LCD_device;
 
 int LCD_devs_cnt = 0;
 static int devno; 
 
-//array to store all GPIO numbers in
-unsigned int gpioArray[11] = {LCD_RS, LCD_RW, LCD_E, LCD_D7, LCD_D6, LCD_D5, LCD_D4, LCD_D3, LCD_D2, LCD_D1, LCD_D0}
 
 static int GPIO_open(struct inode *inode, struct file *filep);
 static int GPIO_release(struct inode *inode, struct file *filep);
 static int GPIO_probe(struct platform_device *pdev);
 static int GPIO_remove(struct platform_device *pdev);
-ssize_t gpio_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos);
-void asciiToLCD(char)
+ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos);
+void asciiToLCD(char);
+void lcdInnit(void);
 
 struct file_operations GPIO_fops = {
     .owner      = THIS_MODULE,
@@ -115,32 +114,30 @@ static int GPIO_driver_init(void)
     return err;   
 }
 
-int GPIO_open(struct inode *inode, struct file *filep) {
+int GPIO_open(struct inode *inode, struct file *filep) 
+{
     int minor = iminor(filep->f_inode);
     printk("Opening LCD driver [major], [minor]: %i %i\n", MAJOR(devno), minor);
     return 0;
 }
 
-int GPIO_release(struct inode *inode, struct file *filep) {
+int GPIO_release(struct inode *inode, struct file *filep) 
+{
     int minor = iminor(filep->f_inode);
     printk("Releasing LCD driver [major], [minor]: %i %i\n", MAJOR(devno), minor);
     return 0;
 }
 
-ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos) {
-    int err = 0;        //error handler
-    char temp_buf[12];  //the size is 3 due to gpio pin + array start
-    int temp_buf_int;
+ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos)
+{
+    char buffer[12];
+    char in_buf;
     int minor = iminor(filep->f_inode);
-    err = copy_from_user(temp_buf, buf, count);
-    if (err != 0) {
-        printk(KERN_ALERT "Not all bytes were copied for device %d\n", GPIO_num);
-        return 0;
-    }
-    sscanf(temp_buf, "%d", &temp_buf_int);
-    gpio_set_value(LED3_num, temp_buf_int);
-    *f_pos += count;
-    return count;    
+    
+    in_buf=copy_from_user(buffer, buf, count);
+    sscanf(buffer, "%d", &in_buf);
+    asciiToLCD(in_buf);
+    return count;
 }
 
 static void GPIO_driver_exit(void) 
@@ -167,10 +164,10 @@ static int GPIO_probe(struct platform_device *pdev)
     for (int i=0;i<gpios_in_dt ; i++) 
     {
 
-        gpio_devs[i].no=of_get_gpio(np,i);
+        LCD_devs[i].no=of_get_gpio(np,i);
         /* henter gpio nummer (of_get_gpio) og skriver i struct */ 
 
-        gpio_devs[i].flag=of_get_gpio_flags(np, i, &flag);
+        LCD_devs[i].flag=of_get_gpio_flags(np, i, &flag);
         /* Henter gpio flag, dvs retning (of_get_gpio_flags)  og skriver i struct */
         ++LCD_devs_cnt;
     }
@@ -178,20 +175,20 @@ static int GPIO_probe(struct platform_device *pdev)
     for (int i = 0; i < LCD_devs_cnt; i++)
     {
         char buffer[] ="gpio_00";
-        sprintf(buffer,"gpio%d",gpio_devs[i].no);
-        err = gpio_request (gpio_devs[i].no, buffer);   //Allokerer gpio
+        sprintf(buffer,"gpio%d",LCD_devs[i].no);
+        err = gpio_request (LCD_devs[i].no, buffer);   //Allokerer gpio
         if (err < 0)
         {   
             printk("Fejl i gpio_request\n");
             goto err_exit;
         }
-        if (gpio_devs[i].flag==0)
+        if (LCD_devs[i].flag==0)
         {
-            err=gpio_direction_input(gpio_devs[i].no);   //Sætter som input.
+            err=gpio_direction_input(LCD_devs[i].no);   //Sætter som input.
         }
         else
         {
-            err=gpio_direction_output(gpio_devs[i].no, 1);   //Sætter som output.
+            err=gpio_direction_output(LCD_devs[i].no, 1);   //Sætter som output.
         }
         
         if (err<0)
@@ -203,6 +200,7 @@ static int GPIO_probe(struct platform_device *pdev)
         
     }
     LCD_device=device_create(LCD_class, NULL, MKDEV(MAJOR(devno),GPIO_MINOR),NULL, "LCD");
+    lcdInnit();
 
     return 0;
 
@@ -210,7 +208,7 @@ static int GPIO_probe(struct platform_device *pdev)
     for (size_t i = 0; i < LCD_devs_cnt; i++)
     {
         device_destroy(LCD_class, MKDEV(MAJOR(devno),i));
-        gpio_free(gpio_devs[i].no);
+        gpio_free(LCD_devs[i].no);
     }    
     err_exit:
     return err;
@@ -222,15 +220,196 @@ static int GPIO_remove(struct platform_device *pdev)
     for (size_t i = 0; i < LCD_devs_cnt; i++)
     {
         device_destroy(LCD_class, MKDEV(MAJOR(devno),GPIO_MINOR));
-        gpio_free(gpio_devs[i].no);
+        gpio_free(LCD_devs[i].no);
     }
     return 0;
     
 }
 
-void asciiToLCD(char)
+void asciiToLCD(char input)
 {
+    switch(input)
+    {
+        case '0':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,0);
+        }
 
+        case '1':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,1);
+        }
+        
+        case '2':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,1);
+            gpio_set_value(LCD_devs[0].no,0);
+        }
+
+        case '3':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,1);
+            gpio_set_value(LCD_devs[0].no,1);
+        }
+
+        case '4':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,1);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,0);
+        }
+
+        case '5':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,1);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,1);
+        }
+
+        case '6':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,1);
+            gpio_set_value(LCD_devs[1].no,1);
+            gpio_set_value(LCD_devs[0].no,0);
+        }
+
+        case '7':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,0);
+            gpio_set_value(LCD_devs[2].no,1);
+            gpio_set_value(LCD_devs[1].no,1);
+            gpio_set_value(LCD_devs[0].no,1);
+        }
+
+        case '8':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,1);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,0);
+        }
+
+        case '9':
+        {
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            gpio_set_value(LCD_devs[7].no,0);
+            gpio_set_value(LCD_devs[6].no,0);
+            gpio_set_value(LCD_devs[5].no,1);
+            gpio_set_value(LCD_devs[4].no,1);
+            gpio_set_value(LCD_devs[3].no,1);
+            gpio_set_value(LCD_devs[2].no,0);
+            gpio_set_value(LCD_devs[1].no,0);
+            gpio_set_value(LCD_devs[0].no,1);
+        }
+    }
+}
+
+
+void lcdInnit(void)
+{
+    for (int i = 0; i < LCD_devs_cnt; i++)
+    {
+        if (LCD_devs[i].no==22||LCD_devs[i].no==21)
+        {
+            gpio_set_value(LCD_devs[i].no,1);
+        }
+        else
+        {
+            gpio_set_value(LCD_devs[i].no,0);
+        }
+    }
+
+    for (int i = 0; i < LCD_devs_cnt; i++)
+    {
+        if (i<4)
+        {
+            gpio_set_value(LCD_devs[i].no,1);
+        }
+        else
+        {
+            gpio_set_value(LCD_devs[i].no,0);
+        }
+    }
+
+    for (int i = 0; i < LCD_devs_cnt; i++)
+    {
+        if (i==5||i==4||i==2)
+        {
+            gpio_set_value(LCD_devs[i].no,1);
+        }
+        else
+        {
+            gpio_set_value(LCD_devs[i].no,0);
+        }
+    } 
 }
 
  module_init(GPIO_driver_init);
