@@ -51,6 +51,7 @@ static int GPIO_release(struct inode *inode, struct file *filep);
 static int GPIO_probe(struct platform_device *pdev);
 static int GPIO_remove(struct platform_device *pdev);
 ssize_t gpio_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos);
+void asciiToLCD(char)
 
 struct file_operations GPIO_fops = {
     .owner      = THIS_MODULE,
@@ -225,6 +226,11 @@ static int GPIO_remove(struct platform_device *pdev)
     }
     return 0;
     
+}
+
+void asciiToLCD(char)
+{
+
 }
 
  module_init(GPIO_driver_init);
