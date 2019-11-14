@@ -11,6 +11,7 @@
 #include <linux/kdev_t.h>
 #include <linux/err.h>
 #include <linux/of_gpio.h>
+#include <linux/delay.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("PRJ3 Gruppe 9");
@@ -132,11 +133,12 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
 {
     char buffer[12];
     char in_buf;
-    int minor = iminor(filep->f_inode);
+    
     
     in_buf=copy_from_user(buffer, buf, count);
-    sscanf(buffer, "%d", &in_buf);
-    asciiToLCD(in_buf);
+    sscanf(buffer, "%c", &in_buf);
+    asciiToLCD(buffer);
+    asciiToLCD('1');
     return count;
 }
 
@@ -188,7 +190,7 @@ static int GPIO_probe(struct platform_device *pdev)
         }
         else
         {
-            err=gpio_direction_output(LCD_devs[i].no, 1);   //Sætter som output.
+            err=gpio_direction_output(LCD_devs[i].no, 0);   //Sætter som output.
         }
         
         if (err<0)
@@ -199,15 +201,18 @@ static int GPIO_probe(struct platform_device *pdev)
     
         
     }
-    LCD_device=device_create(LCD_class, NULL, MKDEV(MAJOR(devno),GPIO_MINOR),NULL, "LCD");
-    lcdInnit();
-
+    LCD_device=device_create(LCD_class, NULL, MKDEV(MAJOR(devno),0),NULL, "LCD");
+    asciiToLCD('i');
+    printk("You've been probed\n");
+    asciiToLCD('6');
+    mdelay(1);
+    asciiToLCD('9');
     return 0;
 
     err_free:
     for (size_t i = 0; i < LCD_devs_cnt; i++)
     {
-        device_destroy(LCD_class, MKDEV(MAJOR(devno),i));
+        device_destroy(LCD_class, MKDEV(MAJOR(devno),MINOR(devno)));
         gpio_free(LCD_devs[i].no);
     }    
     err_exit:
@@ -230,6 +235,11 @@ void asciiToLCD(char input)
 {
     switch(input)
     {
+        case 'i':
+        {
+            lcdInnit();
+        }
+        break;
         case '0':
         {
             gpio_set_value(LCD_devs[9].no,1);
@@ -243,6 +253,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,0);
         }
+        break;
 
         case '1':
         {
@@ -257,6 +268,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,1);
         }
+        break;
         
         case '2':
         {
@@ -271,6 +283,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,1);
             gpio_set_value(LCD_devs[0].no,0);
         }
+        break;
 
         case '3':
         {
@@ -285,6 +298,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,1);
             gpio_set_value(LCD_devs[0].no,1);
         }
+        break;
 
         case '4':
         {
@@ -299,6 +313,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,0);
         }
+        break;
 
         case '5':
         {
@@ -313,6 +328,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,1);
         }
+        break;
 
         case '6':
         {
@@ -326,7 +342,11 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[2].no,1);
             gpio_set_value(LCD_devs[1].no,1);
             gpio_set_value(LCD_devs[0].no,0);
+            gpio_set_value(19,0);
+            mdelay(1);
+            gpio_set_value(19,1);
         }
+        break;
 
         case '7':
         {
@@ -341,6 +361,7 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[1].no,1);
             gpio_set_value(LCD_devs[0].no,1);
         }
+        break;
 
         case '8':
         {
@@ -354,7 +375,11 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[2].no,0);
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,0);
+            gpio_set_value(19,0);
+            mdelay(1);
+            gpio_set_value(19,1);
         }
+        break;
 
         case '9':
         {
@@ -368,7 +393,11 @@ void asciiToLCD(char input)
             gpio_set_value(LCD_devs[2].no,0);
             gpio_set_value(LCD_devs[1].no,0);
             gpio_set_value(LCD_devs[0].no,1);
+            gpio_set_value(19,0);
+            mdelay(1);
+            gpio_set_value(19,1);
         }
+        break;
     }
 }
 
@@ -386,6 +415,9 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
+    gpio_set_value(19,0);
+    mdelay(1);
+    gpio_set_value(19,1); 
 
     for (int i = 0; i < LCD_devs_cnt; i++)
     {
@@ -398,10 +430,12 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
-
+    gpio_set_value(19,0);
+    mdelay(1);
+    gpio_set_value(19,1); 
     for (int i = 0; i < LCD_devs_cnt; i++)
     {
-        if (i==5||i==4||i==2)
+        if (i==5||i==4||i==3)
         {
             gpio_set_value(LCD_devs[i].no,1);
         }
@@ -409,7 +443,12 @@ void lcdInnit(void)
         {
             gpio_set_value(LCD_devs[i].no,0);
         }
-    } 
+    }
+    gpio_set_value(19,0);
+    mdelay(1);
+    gpio_set_value(19,1); 
+
+    
 }
 
  module_init(GPIO_driver_init);
