@@ -37,7 +37,7 @@ static const unsigned int LCD_D1 = 21;
 static const unsigned int LCD_D0 = 20;
 static int devno;
     //static int devno[11] = {0};
-static struct cdev GPIO_cdev[2];
+static struct cdev GPIO_cdev;
 struct class *LCD_class;
 struct device *LCD_device;
 
@@ -52,6 +52,7 @@ static int GPIO_remove(struct platform_device *pdev);
 ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos);
 void asciiToLCD(char);
 void lcdInnit(void);
+void writeLCD(char *input);
 
 struct file_operations GPIO_fops = {
     .owner      = THIS_MODULE,
@@ -90,8 +91,8 @@ static int GPIO_driver_init(void)
     {
        goto err_free;
     }
-    cdev_init(GPIO_cdev, &GPIO_fops); //Initialize c-dev
-    err = cdev_add(GPIO_cdev, devno, LCD_devs_cnt); //Check for failure
+    cdev_init(&GPIO_cdev, &GPIO_fops); //Initialize c-dev
+    err = cdev_add(&GPIO_cdev, devno, LCD_devs_cnt); //Check for failure
     if(err<0)
     {
         goto err_dev_unreg;
@@ -108,7 +109,7 @@ static int GPIO_driver_init(void)
         platform_driver_unregister(&my_gpio_platform_driver);
         class_destroy(LCD_class);
     err_dev_unreg:
-        cdev_del(GPIO_cdev);
+        cdev_del(&GPIO_cdev);
         unregister_chrdev_region(devno,LCD_devs_cnt); //Unregister device
     err_free:
 
@@ -133,12 +134,13 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
 {
     char buffer[12];
     char in_buf;
-    
+    printk("Hej\n");
     
     in_buf=copy_from_user(buffer, buf, count);
     sscanf(buffer, "%c", &in_buf);
     asciiToLCD(buffer);
     asciiToLCD('1');
+    writeLCD(buffer);
     return count;
 }
 
@@ -146,7 +148,7 @@ static void GPIO_driver_exit(void)
 {
     platform_driver_unregister(&my_gpio_platform_driver);
     class_destroy(LCD_class);
-    cdev_del(GPIO_cdev);
+    cdev_del(&GPIO_cdev);
     unregister_chrdev_region(devno, LCD_devs_cnt);
     
     printk(KERN_INFO "LCD driver has been abandoned correctly\n");
@@ -202,11 +204,10 @@ static int GPIO_probe(struct platform_device *pdev)
         
     }
     LCD_device=device_create(LCD_class, NULL, MKDEV(MAJOR(devno),0),NULL, "LCD");
-    asciiToLCD('i');
-    printk("You've been probed\n");
-    asciiToLCD('6');
+    lcdInnit();
     mdelay(1);
-    asciiToLCD('9');
+    printk("You've been probed\n");
+    writeLCD("Cardboard One");
     return 0;
 
     err_free:
@@ -449,6 +450,49 @@ void lcdInnit(void)
     gpio_set_value(19,1); 
 
     
+}
+
+void writeLCD(char *input)
+{
+	int bitArray[8];
+
+    if (input == "clear")
+    {
+        for (int i = 9; i >= 0; i--)
+        {
+            if (i==0)
+            {
+                gpio_set_value(LCD_devs[i].no,1);
+            }
+            else
+            {
+                gpio_set_value(LCD_devs[i].no,0);
+            }
+        }
+        gpio_set_value(19,0);
+        mdelay(1);
+        gpio_set_value(19,1);
+        
+    }
+    
+
+	for (int i = 0; i < strlen(input); ++i) {
+
+		for (int j = 7; j >= 0; --j) {
+			bitArray[j] = (input[i] & (1 << j)) ? 1 : 0;
+		}
+        gpio_set_value(LCD_devs[9].no,1);
+        gpio_set_value(LCD_devs[8].no,0);
+		for (int n = 7; n >= 0; --n) 
+        {
+           
+
+            gpio_set_value(LCD_devs[n].no, bitArray[n]);
+		}
+        gpio_set_value(19,0);
+        mdelay(1);
+        gpio_set_value(19,1);
+	}
 }
 
  module_init(GPIO_driver_init);
