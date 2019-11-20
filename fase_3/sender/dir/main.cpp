@@ -11,7 +11,6 @@ int main(void)
     {
         inputHandler::updateInput();
         printf("Input: %d, %d, %d, %d, %d\n", inputHandler::throttleUp, inputHandler::throttleDown, inputHandler::toggleswitch, inputHandler::adc0, inputHandler::adc1);
-        int x;
         controller::createCommand(
             inputHandler::throttleUp, 
             inputHandler::throttleDown, 

@@ -15,6 +15,7 @@ class client {
     static void sendMessage(uint8_t);
     static char buffer[100];
   private:
+    struct timeval timeout;  
     static int socketfd;
     static struct sockaddr_in serveraddr;
 };
