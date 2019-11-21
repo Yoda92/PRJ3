@@ -6,16 +6,17 @@
 #include <string.h>
 #include <stdlib.h> 
 #include <stdint.h>
+#include <sys/time.h>
 
 #define PORT 8080
 
 class client {
   public: 
-    static void init(void);
-    static void sendMessage(uint8_t);
+    static int init(void);
+    static int sendMessage(uint8_t);
     static char buffer[100];
+    static int socketfd;
   private:
     static struct timeval timeout;  
-    static int socketfd;
     static struct sockaddr_in serveraddr;
 };

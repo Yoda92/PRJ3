@@ -39,5 +39,6 @@ ssh root@10.9.8.2 << EOF
         echo "dtoverlay=spi_drv" >> /boot/config.txt
     fi
     chmod +x ~/autostart_debug.sh
+    rm /etc/init.d/autostart.sh
     update-rc.d -f autostart.sh remove
 EOF

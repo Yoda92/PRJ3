@@ -7,33 +7,25 @@ struct sockaddr_in client::serveraddr;
 char client::buffer[100];
 struct timeval client::timeout;      
 
-void client::init(void)
+int client::init(void)
 {
-    bool conn = false;
-    socketfd = -1;
     // Create socket file descriptor
     // AF_INET : Domain : IPv4 Protokol (32 bit address)
     // SOCK_STREAM : Type : TCP (Connection protocol - More reliable transmission)
     // 0 : Protocol : Zero for IP
-    while (socketfd < 0)
-    {
-        socketfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (socketfd < 0) { 
-            printf("Cannot create socket.\n"); 
-        } 
-        else {
-            printf("Socket created.\n");
-            // Set timeout for socket
-            timeout.tv_sec = 3;
-            if (setsockopt(socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) != 0) {
-                printf("Cannot set socket timeout.\n"); 
-                socketfd = -1;
-            }
-            else {
-                printf("Socket timeout set.\n"); 
-            }
-        }
+    socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketfd < 0) {
+        printf("Cannot create socket.\n"); 
+        return -1;
     }
+    printf("Socket created.\n");
+        // Set timeout for socket
+    timeout.tv_sec = 3;
+    if (setsockopt(socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) != 0) {
+        printf("Cannot set socket timeout.\n"); 
+        return -1;
+    }
+    printf("Socket timeout set.\n"); 
 
     // memset(a, b, c) copies char b to the c first charachters in a
     // Ensures server address is empty  
@@ -48,20 +40,15 @@ void client::init(void)
 	serveraddr.sin_port = htons(PORT); 
 
     // Connect client socket to server socket
-    while(conn == false)
-    {
-	    if (connect(socketfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) != 0) { 
-		    printf("Connection failed.\n"); 
-            sleep(2);
-	    }    
-	    else {
-		    printf("Connection established.\n"); 
-            conn = true;
-        }
-    }
+    if (connect(socketfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) != 0) { 
+        printf("Connection failed.\n"); 
+        return -1;
+    }    
+    printf("Connection established.\n"); 
+    return 0;
 }
 
-void client::sendMessage(uint8_t byte)
+int client::sendMessage(uint8_t byte)
 {
     int error = 0;
     // memset(a, b, c) copies char b to the c first charachters in a
@@ -71,16 +58,11 @@ void client::sendMessage(uint8_t byte)
     // Send message
     // MSG_NOSIGNAL parameter ensures that SIGPIPE is not returned 
     // --> Program does not crash if connection is lost
-    if (send(socketfd, buffer, sizeof(buffer), MSG_NOSIGNAL) < 0)
+    if (send(socketfd, buffer, sizeof(buffer), MSG_NOSIGNAL) == -1)
     {
-        printf("Connection timeout.\n"); 
-        error = -1;
+        printf("Message error!\n"); 
+        return -1;
     }
     memset(&buffer, 0, sizeof(buffer));
-    if (error != 0) {
-        // Reset socket
-        printf("Resetting socket.\n"); 
-        close(socketfd);
-        client::init();
-    }
+    return 0;
 }
