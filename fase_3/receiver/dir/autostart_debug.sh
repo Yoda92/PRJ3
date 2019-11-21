@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run main loop
-~/main >> ~/log_rpi.txt 2>&1 &
+~/main
 
 SSID=rpiWifi
 PW=wifi1234
@@ -14,7 +14,7 @@ while true
 do
     if ping 192.168.0.1 -w 1 | grep -q '100% packet loss'
     then
-        echo "Attempting connection..." >> ~/log.txt 2>&1
+        echo "Attempting connection..." 
         while [ "$CONNECTED" == "false" ]
         do
             connmanctl scan wifi
@@ -42,6 +42,6 @@ EOF
         
         connmanctl connect $HASH
     fi
-    echo "Connected. Sleep for 2 seconds.." >> ~/log.txt 2>&1
+    echo "Connected. Sleep for 2 seconds.."
     sleep 2
 done
