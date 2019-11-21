@@ -40,5 +40,6 @@ ssh root@10.9.8.2 << EOF
     fi
     mv autostart.sh /etc/init.d/
     chmod +x /etc/init.d/autostart.sh
+    rm ~/autstart_debug.sh
     update-rc.d autostart.sh defaults 99
 EOF
