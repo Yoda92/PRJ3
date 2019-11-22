@@ -41,7 +41,7 @@ static struct cdev GPIO_cdev;
 struct class *LCD_class;
 struct device *LCD_device;
 
-int LCD_devs_cnt = 0;
+int LCD_devs_cnt = 1;
 static int devno; 
 
 
@@ -53,6 +53,7 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
 void asciiToLCD(char);
 void lcdInnit(void);
 void writeLCD(char *input);
+void shiftDisplayLeft(void);
 
 struct file_operations GPIO_fops = {
     .owner      = THIS_MODULE,
@@ -103,6 +104,7 @@ static int GPIO_driver_init(void)
     {
         goto err_plat_unreg;
     }
+    printk("Innit\n");
     return 0;
     
     err_plat_unreg:
@@ -138,9 +140,10 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
     
     in_buf=copy_from_user(buffer, buf, count);
     sscanf(buffer, "%c", &in_buf);
-    asciiToLCD(buffer);
-    asciiToLCD('1');
     writeLCD(buffer);
+    shiftDisplayLeft();
+    shiftDisplayLeft();
+
     return count;
 }
 
@@ -207,7 +210,7 @@ static int GPIO_probe(struct platform_device *pdev)
     lcdInnit();
     mdelay(1);
     printk("You've been probed\n");
-    writeLCD("Cardboard One");
+    writeLCD("Throttle: ");
     return 0;
 
     err_free:
@@ -232,175 +235,6 @@ static int GPIO_remove(struct platform_device *pdev)
     
 }
 
-void asciiToLCD(char input)
-{
-    switch(input)
-    {
-        case 'i':
-        {
-            lcdInnit();
-        }
-        break;
-        case '0':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,0);
-        }
-        break;
-
-        case '1':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,1);
-        }
-        break;
-        
-        case '2':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,1);
-            gpio_set_value(LCD_devs[0].no,0);
-        }
-        break;
-
-        case '3':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,1);
-            gpio_set_value(LCD_devs[0].no,1);
-        }
-        break;
-
-        case '4':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,1);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,0);
-        }
-        break;
-
-        case '5':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,1);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,1);
-        }
-        break;
-
-        case '6':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,1);
-            gpio_set_value(LCD_devs[1].no,1);
-            gpio_set_value(LCD_devs[0].no,0);
-            gpio_set_value(19,0);
-            mdelay(1);
-            gpio_set_value(19,1);
-        }
-        break;
-
-        case '7':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,0);
-            gpio_set_value(LCD_devs[2].no,1);
-            gpio_set_value(LCD_devs[1].no,1);
-            gpio_set_value(LCD_devs[0].no,1);
-        }
-        break;
-
-        case '8':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,1);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,0);
-            gpio_set_value(19,0);
-            mdelay(1);
-            gpio_set_value(19,1);
-        }
-        break;
-
-        case '9':
-        {
-            gpio_set_value(LCD_devs[9].no,1);
-            gpio_set_value(LCD_devs[8].no,0);
-            gpio_set_value(LCD_devs[7].no,0);
-            gpio_set_value(LCD_devs[6].no,0);
-            gpio_set_value(LCD_devs[5].no,1);
-            gpio_set_value(LCD_devs[4].no,1);
-            gpio_set_value(LCD_devs[3].no,1);
-            gpio_set_value(LCD_devs[2].no,0);
-            gpio_set_value(LCD_devs[1].no,0);
-            gpio_set_value(LCD_devs[0].no,1);
-            gpio_set_value(19,0);
-            mdelay(1);
-            gpio_set_value(19,1);
-        }
-        break;
-    }
-}
 
 
 void lcdInnit(void)
@@ -452,11 +286,29 @@ void lcdInnit(void)
     
 }
 
+void shiftDisplayLeft(void)
+{
+    for (int i = 9; i >= 0; i--)
+        {
+            if (i==4)
+            {
+                gpio_set_value(LCD_devs[i].no,1);
+            }
+            else
+            {
+                gpio_set_value(LCD_devs[i].no,0);
+            }
+        }
+        gpio_set_value(19,0);
+        mdelay(1);
+        gpio_set_value(19,1);
+}
+
 void writeLCD(char *input)
 {
 	int bitArray[8];
 
-    if (input == "clear")
+    if (*input == 'q')
     {
         for (int i = 9; i >= 0; i--)
         {
