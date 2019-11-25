@@ -22,12 +22,17 @@ int server::init(void)
     printf("Socket created.\n");
     // Set timeout for socket
     timeout.tv_sec = 3;
-    if(setsockopt(socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) != 0) {
+    timeout.tv_usec = 0;
+    if(setsockopt(socketfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) != 0) {
         printf("Cannot set socket timout.\n");
         return -1;
     }
-  
-    printf("Socket timeout set.\n");
+    int optionvalue = 1;
+    if(setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&optionvalue, sizeof(optionvalue)) != 0) {
+        printf("Cannot set socket address as reusable.\n");
+        return -1;
+    }
+    printf("Socket options set.\n");
     
     // memset(a, b, c) copies char b to the c first characters in a
     // Ensures server address is empty  
@@ -75,5 +80,5 @@ int server::receiveMessage(void)
     memset(buffer, 0, sizeof(buffer));
 
     // Read message from client
-    return read(conf, buffer, sizeof(buffer));
+    return recv(conf, buffer, sizeof(buffer), 0);
 }

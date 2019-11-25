@@ -3,14 +3,14 @@
 
 int main(void)
 {
-    server::init();
+    if(server::init() < 0) return 0;
     outputHandler::init();
     uint8_t receiveByte;
     int error = 0;
     // Program loop
     while (error == 0)
     {
-        if(server::receiveMessage() > 0) {
+        if(server::receiveMessage() >= 0) {
             // printf("Input: %d, %d, %d, %d, %d\n", inputHandler::throttleUp, inputHandler::throttleDown, inputHandler::toggleswitch, inputHandler::adc0, inputHandler::adc1);
             receiveByte = atoi(server::buffer);
             printf("Output: %d\n", receiveByte);

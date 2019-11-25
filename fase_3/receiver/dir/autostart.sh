@@ -3,28 +3,24 @@
 SSID=rpiWifi
 PW=wifi1234
 
+sleep 30
+connmanctl disable wifi
+connmanctl enable wifi
+
 while true
 do
+    echo "Scanning network..." >> ~/log.txt 2>&1
+    connmanctl scan wifi
+    HASH=$(connmanctl services | grep $SSID | awk '{print $3}')
+    if [ "$HASH" == "" ] 
+    then 
+        HASH=$(connmanctl services | grep $SSID | awk '{print $2}')
+    fi
     # Check for connection
-    if ping 192.168.0.1 -w 1 | grep -q '100% packet loss'
+    if [ "$HASH" != "" ] 
     then
-        echo "No connection. Attempting to connect..." >> ~/log.txt 2>&1
-        connmanctl disable wifi
-        connmanctl enable wifi
-        connmanctl scan wifi
-        echo "Scanning network..." >> ~/log.txt 2>&1
-        # Run services --> Find WIFI with SSID --> Set Hash to third or second field
-        HASH=$(connmanctl services | grep $SSID | awk '{print $3}')
-        if [ "$HASH" == "" ] 
-        then 
-            HASH=$(connmanctl services | grep $SSID | awk '{print $2}')
-        fi
-        if [ "$HASH" == "" ] 
-        then
-            echo "WIFI: $SSID was not found" >> ~/log.txt 2>&1
-        else
-            echo "Discovered WIFI: $SSID with hash: $HASH" >> ~/log.txt 2>&1
-            echo "Writing config file for WIFI: $SSID" >> ~/log.txt 2>&1
+        echo "Discovered WIFI: $SSID with hash: $HASH" >> ~/log.txt 2>&1
+        echo "Writing config file for WIFI: $SSID" >> ~/log.txt 2>&1
 # <-------- Indent error due to bash EOF error
 cat << EOF > /var/lib/connman/$SSID-psk.config
 [service_$HASH]
@@ -33,12 +29,14 @@ Name = $SSID
 Passphrase = $PW
 EOF
 # <-------- Indent error due to bash EOF error
-            connmanctl connect $HASH
-            fi 
+            connmanctl connect $HASH >> ~/log.txt 2>&1
+            echo "Connected. Starting program.." >> ~/log.txt 2>&1
+            sleep 2
+            ~/main >> ~/log.txt 2>&1
+            echo "Program terminated." >> ~/log.txt 2>&1
     else
-        echo "Connected. Starting program.." >> ~/log.txt 2>&1
-        ~/main >> ~/log.txt 2>&1
-        echo "Program terminated. Sleeping for 2 seconds..." >> ~/log.txt 2>&1
+        echo "AP not found..." >> ~/log.txt 2>&1
     fi
+    echo "Sleeping for 2 seconds..." >> ~/log.txt 2>&1
     sleep 2
 done
