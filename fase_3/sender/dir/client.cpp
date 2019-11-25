@@ -19,8 +19,9 @@ int client::init(void)
         return -1;
     }
     printf("Socket created.\n");
-        // Set timeout for socket
+    // Set timeout for socket
     timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
     if (setsockopt(socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) != 0) {
         printf("Cannot set socket timeout.\n"); 
         return -1;
@@ -56,11 +57,10 @@ int client::sendMessage(uint8_t byte)
     memset(&buffer, 0, sizeof(buffer));
     snprintf(buffer, sizeof(buffer), "%d", byte);
     // Send message
-    // MSG_NOSIGNAL parameter ensures that SIGPIPE is not returned 
-    // --> Program does not crash if connection is lost
-    if (send(socketfd, buffer, sizeof(buffer), MSG_NOSIGNAL) == -1)
+    if (send(socketfd, buffer, sizeof(buffer), 0) < 0)
     {
         printf("Message error!\n"); 
+        memset(&buffer, 0, sizeof(buffer));
         return -1;
     }
     memset(&buffer, 0, sizeof(buffer));

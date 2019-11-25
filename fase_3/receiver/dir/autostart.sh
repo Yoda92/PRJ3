@@ -32,7 +32,7 @@ EOF
             connmanctl connect $HASH >> ~/log.txt 2>&1
             echo "Connected. Starting program.." >> ~/log.txt 2>&1
             sleep 2
-            ~/main >> ~/log.txt 2>&1
+            ~/main
             echo "Program terminated." >> ~/log.txt 2>&1
     else
         echo "AP not found..." >> ~/log.txt 2>&1
