@@ -136,12 +136,17 @@ int GPIO_release(struct inode *inode, struct file *filep)
 
 ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos)
 {
-    char buffer[12];
+    char buffer[256];
     char in_buf;
-    printk("Hej\n");
+    
     
     in_buf=copy_from_user(buffer, buf, count);
     sscanf(buffer, "%c", &in_buf);
+    for (size_t i = 0; i < strlen(buffer)-1; i++)
+    {
+        printk("%c\n",buffer[i]);
+    }
+    
     writeLCD(buffer);
 
     setDDRAM_Adress("1010");
@@ -213,9 +218,10 @@ static int GPIO_probe(struct platform_device *pdev)
     mdelay(1);
     printk("You've been probed\n");
     writeLCD("Throttle: ");
-    setDDRAM_Adress("1000000");
+    setDDRAM_Adress("0000001");
     writeLCD("Connection: off");
-    setDDRAM_Adress("1010");
+    setDDRAM_Adress("1001000");
+
     return 0;
 
     err_free:
@@ -333,7 +339,7 @@ void writeLCD(char *input)
     }
     
 
-	for (int i = 0; i < strlen(input); ++i) {
+	for (int i = 0; i < strlen(input)-1; ++i) {
 
 		for (int j = 7; j >= 0; --j) {
 			bitArray[j] = (input[i] & (1 << j)) ? 1 : 0;
