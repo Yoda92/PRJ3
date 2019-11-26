@@ -4,8 +4,8 @@
 
 int main(void)
 {
-    if(inputHandler::init() < 0) return 0;
-    client::init();
+    inputHandler::init();
+    if(client::init() < 0) return 0;
     int error = 0;
     // Program loop
     while (error == 0)

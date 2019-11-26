@@ -3,8 +3,8 @@
 
 int main(void)
 {
-    if(server::init() < 0) return 0;
     outputHandler::init();
+    if(server::init() < 0) return 0;
     uint8_t receiveByte;
     int error = 0;
     // Program loop
