@@ -2,6 +2,7 @@
 
 SSID=rpiWifi
 PW=wifi1234
+rm /var/lib/connman/*psk* -R
 
 while true
 do
@@ -25,6 +26,7 @@ do
             echo "WIFI: $SSID was not found"
         else
             echo "Discovered WIFI: $SSID with hash: $HASH"
+            sleep 2
             echo "Writing config file for WIFI: $SSID"
 # <-------- Indent error due to bash EOF error
 cat << EOF > /var/lib/connman/$SSID-psk.config
@@ -33,8 +35,11 @@ Type = wifi
 Name = $SSID
 Passphrase = $PW
 EOF
+sleep 2
 # <-------- Indent error due to bash EOF error
             connmanctl connect $HASH
+            echo "Connection test gogogogo"
+            ~/main
             fi 
     else
         echo "Connected. Starting program.."
