@@ -1,1 +1,0 @@
-cmd_/home/stud/Projekt3/PRJ3/driverLCD/driverLCD.ko := arm-poky-linux-gnueabi-ld -r  -EL -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds  --build-id  -o /home/stud/Projekt3/PRJ3/driverLCD/driverLCD.ko /home/stud/Projekt3/PRJ3/driverLCD/driverLCD.o /home/stud/Projekt3/PRJ3/driverLCD/driverLCD.mod.o ;  true

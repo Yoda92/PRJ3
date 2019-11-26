@@ -23,20 +23,21 @@ MODULE_DESCRIPTION("GPIO LCD driver");
 
 //LCD 1602a
 
-//gpio pin assignments
-static const unsigned int LCD_RS = 13;
-static const unsigned int LCD_RW = 16;
-static const unsigned int LCD_E = 19;
-static const unsigned int LCD_D7 = 27;
-static const unsigned int LCD_D6 = 26;
-static const unsigned int LCD_D5 = 25;
-static const unsigned int LCD_D4 = 24;
-static const unsigned int LCD_D3 = 23;
-static const unsigned int LCD_D2 = 22;
-static const unsigned int LCD_D1 = 21;
-static const unsigned int LCD_D0 = 20;
+/*gpio pin assignments
+LCD_RS = 13;
+LCD_RW = 16;
+LCD_E = 19;
+LCD_D7 = 27;
+LCD_D6 = 26;
+LCD_D5 = 25;
+LCD_D4 = 24;
+LCD_D3 = 23;
+LCD_D2 = 22;
+LCD_D1 = 21;
+LCD_D0 = 20;
+*/
 static int devno;
-    //static int devno[11] = {0};
+
 static struct cdev GPIO_cdev;
 struct class *LCD_class;
 struct device *LCD_device;
@@ -141,8 +142,13 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
     in_buf=copy_from_user(buffer, buf, count);
     sscanf(buffer, "%c", &in_buf);
     writeLCD(buffer);
-    shiftDisplayLeft();
-    shiftDisplayLeft();
+
+    for (size_t i = 0; i < strlen(buffer); i++)
+    {
+       shiftDisplayLeft();
+    }
+    
+    
 
     return count;
 }
