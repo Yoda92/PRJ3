@@ -9,12 +9,17 @@ echo in > /sys/class/gpio/gpio22/direction
 echo in > /sys/class/gpio/gpio27/direction
 echo in > /sys/class/gpio/gpio17/direction
 
-# Create AP
+sleep 30
+connmanctl disable wifi 
+connmanctl enable wifi 
+connmanctl tether wifi on rpiWifi wifi1234
+# Program loop
 while true
 do
+    ISAP=$(connmanctl services | grep $SSID)
     if ping 192.168.0.1 -w 1 | grep -q '100% packet loss'
     then
-        echo "AP failed. Attempting again in 2 seconds.."
+        echo "AP failed. Attempting again in 2 seconds.." 
         connmanctl disable wifi 
         connmanctl enable wifi 
         connmanctl tether wifi on rpiWifi wifi1234
@@ -22,14 +27,15 @@ do
         echo "AP ready. Checking connection.."
         if ping 192.168.0.2 -w 1 | grep -q '100% packet loss'
         then
-            echo "No connection. Waiting..."
+            echo "No connection. Waiting..." 
         else
             echo "Connection established. Starting program."
+            sleep 2
             # Run main loop
             ~/main
-            echo "Program terminated."
+            echo "Program terminated." 
         fi
     fi
-    echo "Sleeping for 2 seconds..."
+    echo "Sleeping for 2 seconds..." 
     sleep 2
 done
