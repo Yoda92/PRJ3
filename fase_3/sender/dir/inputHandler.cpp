@@ -12,6 +12,7 @@ char inputHandler::buffer_throttle_up[PATH_LENGTH_GPIO] = {0};
 char inputHandler::buffer_throttle_down[PATH_LENGTH_GPIO] = {0};
 char inputHandler::buffer_switch[PATH_LENGTH_GPIO] = {0};
 char inputHandler::buffer_adc[PATH_LENGTH_ADC] = {0};
+char inputHandler::buffer_lcd[PATH_LENGTH_LCD] = {0};
 
 void inputHandler::init(void)
 {
@@ -20,6 +21,7 @@ void inputHandler::init(void)
     snprintf(buffer_throttle_down, PATH_LENGTH_GPIO, "/sys/class/gpio/gpio%d/value", GPIO_THROTTLE_DOWN);
     snprintf(buffer_switch, PATH_LENGTH_GPIO, "/sys/class/gpio/gpio%d/value", GPIO_SWITCH);
     snprintf(buffer_adc, PATH_LENGTH_ADC, "/dev/spi_drv0");
+    snprintf(buffer_lcd, PATH_LENGTH_LCD, "/dev/LCD");
 }
 
 void inputHandler::updateInput(void)
