@@ -55,6 +55,7 @@ void asciiToLCD(char);
 void lcdInnit(void);
 void writeLCD(char *input);
 void shiftDisplayLeft(void);
+void setDDRAM_Adress(char *binary);
 
 struct file_operations GPIO_fops = {
     .owner      = THIS_MODULE,
@@ -143,12 +144,7 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
     sscanf(buffer, "%c", &in_buf);
     writeLCD(buffer);
 
-    for (size_t i = 0; i < strlen(buffer); i++)
-    {
-       shiftDisplayLeft();
-    }
-    
-    
+    setDDRAM_Adress("1010");
 
     return count;
 }
@@ -217,6 +213,9 @@ static int GPIO_probe(struct platform_device *pdev)
     mdelay(1);
     printk("You've been probed\n");
     writeLCD("Throttle: ");
+    setDDRAM_Adress("1000000");
+    writeLCD("Connection: off");
+    setDDRAM_Adress("1010");
     return 0;
 
     err_free:
@@ -351,6 +350,20 @@ void writeLCD(char *input)
         mdelay(1);
         gpio_set_value(19,1);
 	}
+}
+
+void setDDRAM_Adress(char *binary)
+{
+    for (size_t i = 0; i < strlen(binary); i++)
+    {
+        gpio_set_value(LCD_devs[i].no,(int)binary[i]-48) //ascii 1 or 0 type conversion to int 1 or 0
+    }
+    gpio_set_value(LCD_devs[7].no,1);
+    gpio_set_value(LCD_devs[8].no,0);
+    gpio_set_value(LCD_devs[9].no,0);
+    gpio_set_value(19,0);
+    mdelay(1);
+    gpio_set_value(19,1); //sending set adress command 
 }
 
  module_init(GPIO_driver_init);
