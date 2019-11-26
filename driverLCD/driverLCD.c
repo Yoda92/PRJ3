@@ -356,7 +356,7 @@ void setDDRAM_Adress(char *binary)
 {
     for (size_t i = 0; i < strlen(binary); i++)
     {
-        gpio_set_value(LCD_devs[i].no,(int)binary[i]-48) //ascii 1 or 0 type conversion to int 1 or 0
+        gpio_set_value(LCD_devs[i].no,(int)binary[i]-48); //ascii 1 or 0 type conversion to int 1 or 0
     }
     gpio_set_value(LCD_devs[7].no,1);
     gpio_set_value(LCD_devs[8].no,0);
