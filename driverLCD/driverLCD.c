@@ -136,9 +136,10 @@ int GPIO_release(struct inode *inode, struct file *filep)
 
 ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos)
 {
-    char buffer[256];
+    char buffer[256]="\0";
     char in_buf;
-    
+    char clearbuf[2];
+    clearbuf[0]='q';
     
     in_buf=copy_from_user(buffer, buf, count);
     sscanf(buffer, "%c", &in_buf);
@@ -146,10 +147,10 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
     {
         printk("%c\n",buffer[i]);
     }
-    
+
     writeLCD(buffer);
 
-    setDDRAM_Adress("1010");
+    setDDRAM_Adress("1001000");
 
     return count;
 }
@@ -219,7 +220,7 @@ static int GPIO_probe(struct platform_device *pdev)
     printk("You've been probed\n");
     writeLCD("Throttle: ");
     setDDRAM_Adress("0000001");
-    writeLCD("Connection: off");
+    writeLCD("Connection:off ");
     setDDRAM_Adress("1001000");
 
     return 0;
@@ -318,44 +319,53 @@ void shiftDisplayLeft(void)
 void writeLCD(char *input)
 {
 	int bitArray[8];
+    int LCDcommand=0;
 
-    if (*input == 'q')
+    if (input[0] == 'q')
     {
         for (int i = 9; i >= 0; i--)
         {
             if (i==0)
             {
                 gpio_set_value(LCD_devs[i].no,1);
+                printk("1\n");
             }
             else
             {
                 gpio_set_value(LCD_devs[i].no,0);
+                printk("0\n");
             }
+            
         }
         gpio_set_value(19,0);
-        mdelay(1);
+        mdelay(10);
         gpio_set_value(19,1);
-        
+        writeLCD("Throttle: ");
+        setDDRAM_Adress("0000001");
+        writeLCD("Connection:off ");
+        setDDRAM_Adress("1001000"); 
+        LCDcommand=1;
     }
     
+    if (LCDcommand==0)
+    {
+        for (int i = 0; i < strlen(input)-1; i++) {
 
-	for (int i = 0; i < strlen(input)-1; ++i) {
+            for (int j = 7; j >= 0; --j) {
+                bitArray[j] = (input[i] & (1 << j)) ? 1 : 0;
+            }
+            gpio_set_value(LCD_devs[9].no,1);
+            gpio_set_value(LCD_devs[8].no,0);
+            for (int n = 7; n >= 0; --n) 
+            {
+                gpio_set_value(LCD_devs[n].no, bitArray[n]);
+            }
+            gpio_set_value(19,0);
+            mdelay(10);
+            gpio_set_value(19,1);
+        }
 
-		for (int j = 7; j >= 0; --j) {
-			bitArray[j] = (input[i] & (1 << j)) ? 1 : 0;
-		}
-        gpio_set_value(LCD_devs[9].no,1);
-        gpio_set_value(LCD_devs[8].no,0);
-		for (int n = 7; n >= 0; --n) 
-        {
-           
-
-            gpio_set_value(LCD_devs[n].no, bitArray[n]);
-		}
-        gpio_set_value(19,0);
-        mdelay(1);
-        gpio_set_value(19,1);
-	}
+	}   	
 }
 
 void setDDRAM_Adress(char *binary)
@@ -368,9 +378,10 @@ void setDDRAM_Adress(char *binary)
     gpio_set_value(LCD_devs[8].no,0);
     gpio_set_value(LCD_devs[9].no,0);
     gpio_set_value(19,0);
-    mdelay(1);
+    mdelay(10);
     gpio_set_value(19,1); //sending set adress command 
 }
+
 
  module_init(GPIO_driver_init);
  module_exit(GPIO_driver_exit);
