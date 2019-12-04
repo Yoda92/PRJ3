@@ -251,7 +251,7 @@ static int GPIO_remove(struct platform_device *pdev)
 
 void lcdInnit(void)
 {
-    for (int i = 0; i < LCD_devs_cnt; i++)
+    for (int i = 0; i < LCD_devs_cnt; i++) //For loop for Entry Mode Set
     {
         if (LCD_devs[i].no==22||LCD_devs[i].no==21)
         {
@@ -262,11 +262,11 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
-    gpio_set_value(19,0);
+    gpio_set_value(19,0); // Enable active low
     mdelay(1);
     gpio_set_value(19,1); 
 
-    for (int i = 0; i < LCD_devs_cnt; i++)
+    for (int i = 0; i < LCD_devs_cnt; i++) // For loop for Display ON/OFF
     {
         if (i<4)
         {
@@ -280,7 +280,7 @@ void lcdInnit(void)
     gpio_set_value(19,0);
     mdelay(1);
     gpio_set_value(19,1); 
-    for (int i = 0; i < LCD_devs_cnt; i++)
+    for (int i = 0; i < LCD_devs_cnt; i++) // For loop for Funktion Set
     {
         if (i==5||i==4||i==3)
         {
@@ -298,31 +298,15 @@ void lcdInnit(void)
     
 }
 
-void shiftDisplayLeft(void)
-{
-    for (int i = 9; i >= 0; i--)
-        {
-            if (i==4)
-            {
-                gpio_set_value(LCD_devs[i].no,1);
-            }
-            else
-            {
-                gpio_set_value(LCD_devs[i].no,0);
-            }
-        }
-        gpio_set_value(19,0);
-        mdelay(1);
-        gpio_set_value(19,1);
-}
-
 void writeLCD(char *input)
 {
 	int bitArray[8];
     int LCDcommand=0;
+    int connection=0;
 
-    if (input[0] == 'q')
+    switch (input[0])
     {
+    case 'q':
         for (int i = 9; i >= 0; i--)
         {
             if (i==0)
@@ -342,11 +326,37 @@ void writeLCD(char *input)
         gpio_set_value(19,1);
         writeLCD("Throttle: ");
         setDDRAM_Adress("0000001");
-        writeLCD("Connection:off ");
-        setDDRAM_Adress("1001000"); 
+        if (connection==0)
+        {
+            writeLCD("Connection:off ");
+            setDDRAM_Adress("1001000");
+        }
+        else
+        {
+            writeLCD("Connection:on ");
+            setDDRAM_Adress("1001000");
+        } 
         LCDcommand=1;
+        break;
+    case 'o':
+        setDDRAM_Adress("1101001");
+        writeLCD("on");
+        setDDRAM_Adress("1001000");
+        connection=1;
+        LCDcommand=1;
+        break;
+    case 'c':
+        setDDRAM_Adress("1101001");
+        writeLCD("off");
+        setDDRAM_Adress("1001000");
+        connection=0;
+        LCDcommand=1;
+        break;
+        
+    default:
+        break;
     }
-    
+
     if (LCDcommand==0)
     {
         for (int i = 0; i < strlen(input)-1; i++) {
