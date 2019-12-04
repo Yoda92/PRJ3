@@ -37,7 +37,7 @@ LCD_D1 = 21;
 LCD_D0 = 20;
 */
 static int devno;
-
+static int connection=0;
 static struct cdev GPIO_cdev;
 struct class *LCD_class;
 struct device *LCD_device;
@@ -149,7 +149,7 @@ ssize_t GPIO_write(struct file *filep, const char __user *buf, size_t count, lof
     }
 
     writeLCD(buffer);
-
+    writeLCD("  ");
     setDDRAM_Adress("1001000");
 
     return count;
@@ -302,7 +302,7 @@ void writeLCD(char *input)
 {
 	int bitArray[8];
     int LCDcommand=0;
-    int connection=0;
+    
 
     switch (input[0])
     {
@@ -338,14 +338,14 @@ void writeLCD(char *input)
         } 
         LCDcommand=1;
         break;
-    case 'o':
+    case 'p':
         setDDRAM_Adress("1101001");
-        writeLCD("on");
+        writeLCD("on  ");
         setDDRAM_Adress("1001000");
         connection=1;
         LCDcommand=1;
         break;
-    case 'c':
+    case 'u':
         setDDRAM_Adress("1101001");
         writeLCD("off");
         setDDRAM_Adress("1001000");
@@ -374,7 +374,6 @@ void writeLCD(char *input)
             mdelay(10);
             gpio_set_value(19,1);
         }
-
 	}   	
 }
 
