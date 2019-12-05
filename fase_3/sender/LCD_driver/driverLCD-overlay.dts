@@ -1,0 +1,23 @@
+// Definitions for driverLCD module
+// Adapted from w1-gpio-pullup-overlay.dts
+/dts-v1/;
+/plugin/;
+/ {
+  compatible = "brcm,bcm2835", "brcm,bcm2836", "brcm,bcm2708", "brcm,bcm2709";
+  fragment@0 {
+    /* Add device to base */
+    target-path = "/";
+    __overlay__ {
+      /* instance:type */
+      driverLCD: driverLCD@0 {
+        /* Label to match in driver */
+        compatible = "PRJ3, driverLCD";
+        
+        gpios = <&gpio 21 1>, <&gpio 26 1>, <&gpio 19 1>, <&gpio 13 1>, <&gpio 6 1>, <&gpio 5 1>, <&gpio 2 1>, <&gpio 3 1>, <&gpio 16 1>, <&gpio 12 1>, <&gpio 20 1>;
+        status = "okay";
+
+
+      };
+    };
+  };
+};
