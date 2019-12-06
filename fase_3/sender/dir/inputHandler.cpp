@@ -1,4 +1,5 @@
 #include "inputHandler.hpp"
+#include "controller.hpp"
 
 // Global values
 int inputHandler::throttleUp = 0;
@@ -26,6 +27,11 @@ void inputHandler::init(void)
 
 void inputHandler::updateInput(void)
 {
+    // Change LCD-Throttle (last iteration)
+    int tempThrottle = (controller::commandByte & 0b00001111) * 10;
+    char lcd_throttle[10];
+    snprintf(lcd_throttle, 6, "%d %", tempThrottle);
+    writeValue(buffer_lcd, lcd_throttle);
     // Read GPIO values
     readValue(buffer_throttle_up, 2, throttleUp);
     readValue(buffer_throttle_down, 2, throttleDown);

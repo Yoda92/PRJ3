@@ -31,7 +31,6 @@ EOF
 # <-------- Indent error due to bash EOF error
             connmanctl connect $HASH 
             echo "Connected. Starting program.."
-            sleep 2
             ~/main
             echo "Program terminated."
     else

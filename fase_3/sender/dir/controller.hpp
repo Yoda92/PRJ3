@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define maxThrottle 1000
+#define upperThreshold 3072
+#define lowerThreshold 1024
+
 class controller {
   public: 
     static void createCommand(int&, int&, int&, int&, int&);
@@ -15,7 +19,4 @@ class controller {
     static void setThrottle(void);
     static void setDirection(int&, int&);
     static int currentThrottle;
-    static const int maxThrottle = 1000;
-    static const int upperThreshold = 3072;
-    static const int lowerThreshold = 1024;
 };

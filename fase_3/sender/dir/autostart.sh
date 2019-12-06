@@ -30,6 +30,7 @@ do
             echo "No connection. Waiting..." >> ~/log.txt 2>&1 &
         else
             echo "Connection established. Starting program." >> ~/log.txt 2>&1
+            echo p > ./dev/LCD
             sleep 2
             # Run main loop
             ~/main

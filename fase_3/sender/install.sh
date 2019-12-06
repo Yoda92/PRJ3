@@ -12,24 +12,29 @@ fi
 # Create driver module
 make clean -C ./spi_driver/
 make -C ./spi_driver/
+make clean -C ./LCD_driver/
+make -C ./LCD_driver/
 
 # Create dir
 make clean -C ./dir/
 make -C ./dir/
 
 # Move driver and dir files to target
-scp ./spi_driver/spi_drv.ko ./spi_driver/spi_drv.dtbo dir/autostart.sh dir/main root@10.9.8.2: 
+scp ./spi_driver/spi_drv.ko ./spi_driver/spi_drv.dtbo ./LCD_driver/driverLCD.ko ./LCD_driver/driverLCD.dtbo dir/autostart.sh dir/main root@10.9.8.2: 
 
 # Cleanup
+make clean -C ./LCD_driver/
 make clean -C ./spi_driver/
 make clean -C ./dir/
 
 # RPI commands
 ssh root@10.9.8.2 << EOF
-    mv spi_drv.ko $MODULE_DEST
+    mv spi_drv.ko driverLCD.ko $MODULE_DEST
     depmod -a
     echo "spi_drv" > /etc/modules-load.d/spi_drv.conf
-    mv spi_drv.dtbo /boot/overlays/
+    echo "driverLCD" > /etc/modules-load.d/driverLCD.conf
+    mv spi_drv.dtbo driverLCD.dtbo /boot/overlays/
+
     if grep -Fq "dtoverlay=spi_drv" /boot/config.txt
     then
         echo "/boot/config.txt alread modified."
@@ -38,6 +43,16 @@ ssh root@10.9.8.2 << EOF
         echo "Adding spi_drv to /boot/config.txt"
         echo "dtoverlay=spi_drv" >> /boot/config.txt
     fi
+
+    if grep -Fq "dtoverlay=driverLCD" /boot/config.txt
+    then
+        echo "/boot/config.txt alread modified."
+    else
+        # Create the definition
+        echo "Adding spi_drv to /boot/config.txt"
+        echo "dtoverlay=driverLCD" >> /boot/config.txt
+    fi
+
     mv autostart.sh /etc/init.d/
     rm ~/autostart_debug.sh
     chmod +x /etc/init.d/autostart.sh
