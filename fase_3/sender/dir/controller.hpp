@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define maxThrottle 1000
+#define maxThrottle 250
 #define upperThreshold 3072
 #define lowerThreshold 1024
 

@@ -7,6 +7,7 @@ int inputHandler::throttleDown = 0;
 int inputHandler::toggleswitch = 0;
 int inputHandler::adc0 = 0;
 int inputHandler::adc1 = 0;
+int inputHandler::lcdCurrent = 0;
 
 // Device address buffers
 char inputHandler::buffer_throttle_up[PATH_LENGTH_GPIO] = {0};
@@ -29,9 +30,13 @@ void inputHandler::updateInput(void)
 {
     // Change LCD-Throttle (last iteration)
     int tempThrottle = (controller::commandByte & 0b00001111) * 10;
-    char lcd_throttle[10];
-    snprintf(lcd_throttle, 6, "%d %", tempThrottle);
-    writeValue(buffer_lcd, lcd_throttle);
+    if (tempThrottle != inputHandler::lcdCurrent)
+    {
+        char lcd_throttle[10];
+        snprintf(lcd_throttle, 6, "%d %", tempThrottle);
+        writeValue(buffer_lcd, lcd_throttle);
+        inputHandler::lcdCurrent = tempThrottle;
+    }
     // Read GPIO values
     readValue(buffer_throttle_up, 2, throttleUp);
     readValue(buffer_throttle_down, 2, throttleDown);

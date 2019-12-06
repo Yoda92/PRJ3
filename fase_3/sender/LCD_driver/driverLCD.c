@@ -345,6 +345,16 @@ void writeLCD(char *input)
         connection=1;
         LCDcommand=1;
         break;
+    case 'i':
+        lcdInnit();
+        mdelay(1);
+        printk("You've been probed%d%d\n",LCD_devs[0].no,LCD_devs[10].no);
+        writeLCD("Throttle: ");
+        setDDRAM_Adress("0000001");
+        writeLCD("Connection:off ");
+        setDDRAM_Adress("1001000");
+        LCDcommand=1;
+        break;
     case 'u':
         setDDRAM_Adress("1101001");
         writeLCD("off");

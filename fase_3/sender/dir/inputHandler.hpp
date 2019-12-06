@@ -18,7 +18,7 @@ class inputHandler {
   public:
     static void init(void);   
     static void updateInput(void);
-    static int throttleUp, throttleDown, toggleswitch, adc0, adc1;
+    static int throttleUp, throttleDown, toggleswitch, adc0, adc1, lcdCurrent;
   private:
     static void readValue(char*, int, int&);
     static void writeValue(char*, const char*);
