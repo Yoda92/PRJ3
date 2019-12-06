@@ -217,7 +217,7 @@ static int GPIO_probe(struct platform_device *pdev)
     LCD_device=device_create(LCD_class, NULL, MKDEV(MAJOR(devno),0),NULL, "LCD");
     lcdInnit();
     mdelay(1);
-    printk("You've been probed\n");
+    printk("You've been probed%d%d\n",LCD_devs[0].no,LCD_devs[10].no);
     writeLCD("Throttle: ");
     setDDRAM_Adress("0000001");
     writeLCD("Connection:off ");
@@ -262,9 +262,9 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
-    gpio_set_value(19,0); // Enable active low
+    gpio_set_value(LCD_devs[10].no,0); // Enable active low
     mdelay(1);
-    gpio_set_value(19,1); 
+    gpio_set_value(LCD_devs[10].no,1); 
 
     for (int i = 0; i < LCD_devs_cnt; i++) // For loop for Display ON/OFF
     {
@@ -277,9 +277,9 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
-    gpio_set_value(19,0);
+    gpio_set_value(LCD_devs[10].no,0);
     mdelay(1);
-    gpio_set_value(19,1); 
+    gpio_set_value(LCD_devs[10].no,1); 
     for (int i = 0; i < LCD_devs_cnt; i++) // For loop for Funktion Set
     {
         if (i==5||i==4||i==3)
@@ -291,9 +291,9 @@ void lcdInnit(void)
             gpio_set_value(LCD_devs[i].no,0);
         }
     }
-    gpio_set_value(19,0);
+    gpio_set_value(LCD_devs[10].no,0);
     mdelay(1);
-    gpio_set_value(19,1); 
+    gpio_set_value(LCD_devs[10].no,1); 
 
     
 }
@@ -321,9 +321,9 @@ void writeLCD(char *input)
             }
             
         }
-        gpio_set_value(19,0);
+        gpio_set_value(LCD_devs[10].no,0);
         mdelay(10);
-        gpio_set_value(19,1);
+        gpio_set_value(LCD_devs[10].no,1);
         writeLCD("Throttle: ");
         setDDRAM_Adress("0000001");
         if (connection==0)
@@ -370,9 +370,9 @@ void writeLCD(char *input)
             {
                 gpio_set_value(LCD_devs[n].no, bitArray[n]);
             }
-            gpio_set_value(19,0);
+            gpio_set_value(LCD_devs[10].no,0);
             mdelay(10);
-            gpio_set_value(19,1);
+            gpio_set_value(LCD_devs[10].no,1);
         }
 	}   	
 }
@@ -386,9 +386,9 @@ void setDDRAM_Adress(char *binary)
     gpio_set_value(LCD_devs[7].no,1);
     gpio_set_value(LCD_devs[8].no,0);
     gpio_set_value(LCD_devs[9].no,0);
-    gpio_set_value(19,0);
+    gpio_set_value(LCD_devs[10].no,0);
     mdelay(10);
-    gpio_set_value(19,1); //sending set adress command 
+    gpio_set_value(LCD_devs[10].no,1); //sending set adress command 
 }
 
 
