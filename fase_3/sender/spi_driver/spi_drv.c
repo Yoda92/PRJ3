@@ -357,8 +357,6 @@ static struct spi_driver spi_drv_spi_driver = {
 module_init(spi_drv_init);
 module_exit(spi_drv_exit);
 
-/*
- * Assignment of author and license
- */
-MODULE_AUTHOR("Peter Hoegh Mikkelsen <phm@ase.au.dk>");
+// Modified by Anders Fisker, based on implementation by Peter Hoegh Mikkelsen
+MODULE_AUTHOR("Peter Hoegh Mikkelsen <phm@ase.au.dk> & Anders Fisker");
 MODULE_LICENSE("GPL");
